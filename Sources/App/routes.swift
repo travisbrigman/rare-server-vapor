@@ -2,13 +2,27 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { req in
-        return "It works!"
+
+    app.post("users") { req -> EventLoopFuture<RareUser> in
+        try RareUser.Create.validate(content: req)
+        let create = try req.content.decode(RareUser.Create.self)
+        guard create.password == create.confirmPassword else {
+            throw Abort(.badRequest, reason: "Passwords did not match")
+        }
+        let user = try RareUser(
+            userName: create.userName,
+            passwordHash: Bcrypt.hash(create.password),
+            bio: create.bio,
+            profileImageUrl: create.profileImageUrl
+        )
+        return user.save(on: req.db)
+            .map { user }
+    }
+    
+    let passwordProtected = app.grouped(RareUser.authenticator())
+    passwordProtected.post("login") { req -> RareUser in
+        try req.auth.require(RareUser.self)
     }
 
-    app.get("hello") { req -> String in
-        return "Hello, world!"
-    }
-
-    try app.register(collection: TodoController())
+//    try app.register(collection: TodoController())
 }
