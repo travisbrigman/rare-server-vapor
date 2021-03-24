@@ -9,7 +9,7 @@ import Vapor
 
 extension RareUser {
     struct Create: Content {
-        var userName: String
+        var username: String
         var password: String
         var confirmPassword: String
         var bio: String
@@ -19,14 +19,14 @@ extension RareUser {
 
 extension RareUser.Create: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("userName", as: String.self, is: !.empty)
+        validations.add("username", as: String.self, is: !.empty)
 
         validations.add("password", as: String.self, is: .count(8...))
     }
 }
 
 extension RareUser: ModelAuthenticatable {
-    static let usernameKey = \RareUser.$userName
+    static let usernameKey = \RareUser.$username
     static let passwordHashKey = \RareUser.$passwordHash
 
     func verify(password: String) throws -> Bool {

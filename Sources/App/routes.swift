@@ -10,7 +10,7 @@ func routes(_ app: Application) throws {
             throw Abort(.badRequest, reason: "Passwords did not match")
         }
         let user = try RareUser(
-            userName: create.userName,
+            username: create.username,
             passwordHash: Bcrypt.hash(create.password),
             bio: create.bio,
             profileImageUrl: create.profileImageUrl

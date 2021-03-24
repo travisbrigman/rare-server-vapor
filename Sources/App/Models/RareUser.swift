@@ -15,7 +15,7 @@ final class RareUser: Model, Content {
     var id: UUID?
     
     @Field(key: "username")
-    var userName: String
+    var username: String
     
     @Field(key: "password_hash")
     var passwordHash: String
@@ -29,9 +29,9 @@ final class RareUser: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, userName: String, passwordHash: String, bio: String, profileImageUrl: String) {
+    init(id: UUID? = nil, username: String, passwordHash: String, bio: String, profileImageUrl: String) {
         self.id = id
-        self.userName = userName
+        self.username = username
         self.passwordHash = passwordHash
         self.bio = bio
         self.profileImageUrl = profileImageUrl
