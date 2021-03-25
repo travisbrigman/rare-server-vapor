@@ -29,7 +29,11 @@ final class RareUser: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, username: String, passwordHash: String, bio: String, profileImageUrl: String) {
+    init(id: UUID? = nil,
+         username: String,
+         passwordHash: String,
+         bio: String,
+         profileImageUrl: String) {
         self.id = id
         self.username = username
         self.passwordHash = passwordHash
