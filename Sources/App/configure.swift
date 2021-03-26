@@ -20,6 +20,14 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(RareUser.Migration())
     app.migrations.add(UserToken.Migration())
+    app.migrations.add(Category.Migration())
+    app.migrations.add(Post.Migration())
+    app.migrations.add(Reaction.Migration())
+    app.migrations.add(PostReaction.Migration())
+    app.migrations.add(Tag.Migration())
+    app.migrations.add(PostTag.Migration())
+    app.migrations.add(Comment.Migration())
+    app.migrations.add(Subscription.Migration())
 
     // register routes
     try routes(app)

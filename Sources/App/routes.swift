@@ -2,6 +2,9 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
+    
+    let userController = RareUserController()
+    let categoryController = CategoryController()
 
     app.post("users") { req -> EventLoopFuture<RareUser> in
         try RareUser.Create.validate(content: req)
@@ -31,6 +34,8 @@ func routes(_ app: Application) throws {
     tokenProtected.get("me") { req -> RareUser in
         try req.auth.require(RareUser.self)
     }
+    
 
-//    try app.register(collection: TodoController())
+    try app.register(collection: userController)
+    try app.register(collection: categoryController)
 }
