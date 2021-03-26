@@ -20,7 +20,15 @@ func routes(_ app: Application) throws {
     }
     
     let passwordProtected = app.grouped(RareUser.authenticator())
-    passwordProtected.post("login") { req -> RareUser in
+    passwordProtected.post("login") { req -> EventLoopFuture<UserToken> in
+        let user = try req.auth.require(RareUser.self)
+        let token = try user.generateToken()
+        return token.save(on: req.db)
+            .map { token }
+    }
+    
+    let tokenProtected = app.grouped(UserToken.authenticator())
+    tokenProtected.get("me") { req -> RareUser in
         try req.auth.require(RareUser.self)
     }
 

@@ -19,6 +19,7 @@ public func configure(_ app: Application) throws {
     app.databases.use(.postgres(hostname: "localhost", username: "postgres", password: "", database: "raredb"), as: .psql)
 
     app.migrations.add(RareUser.Migration())
+    app.migrations.add(UserToken.Migration())
 
     // register routes
     try routes(app)
