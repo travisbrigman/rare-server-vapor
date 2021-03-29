@@ -43,18 +43,9 @@ final class CategoryController: RouteCollection {
         }
       }
     
-//    func delete(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
-//        Category.find(req.parameters.get("category_id"), on: req.db).unwrap(or: Abort(.notFound))
-//            .flatMap {
-//                $0.delete(on: req.db)
-//        }.transform(to: .ok)
-//    }
-    
-    func delete(_ req: Request)
-    -> EventLoopFuture<HTTPStatus> {
+    func delete(_ req: Request) -> EventLoopFuture<HTTPStatus> {
         Category.find(req.parameters.get("category_id"), on: req.db)
-            .unwrap(or: Abort(.notFound))
-            .flatMap { category in
+            .unwrap(or: Abort(.notFound)).flatMap { category in
                 category.delete(on: req.db)
                     .transform(to: .noContent)
             }

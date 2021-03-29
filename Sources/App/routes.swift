@@ -5,6 +5,9 @@ func routes(_ app: Application) throws {
     
     let userController = RareUserController()
     let categoryController = CategoryController()
+    let commentController = CommentController()
+    let postController = PostController()
+    let postReactionsController = PostReactionController()
 
     app.post("users") { req -> EventLoopFuture<RareUser> in
         try RareUser.Create.validate(content: req)
@@ -38,4 +41,7 @@ func routes(_ app: Application) throws {
 
     try app.register(collection: userController)
     try app.register(collection: categoryController)
+    try app.register(collection: commentController)
+    try app.register(collection: postController)
+    try app.register(collection: postReactionsController)
 }

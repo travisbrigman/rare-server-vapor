@@ -6,6 +6,14 @@ import Vapor
 public func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    
+    app.middleware.use(ErrorMiddleware.default(environment: app.environment))
+    
+    // using a custom error handler
+    app.middleware.use(ErrorMiddleware { req, error -> Response in
+        // implement custom response...
+        .init(status: .internalServerError, version: req.version, headers: .init(), body: .empty)
+    })
 
 //‼️THIS WAS BOILERPLATE CODE THAT DIDN'T WORK
 //    app.databases.use(.postgres(
@@ -28,6 +36,10 @@ public func configure(_ app: Application) throws {
     app.migrations.add(PostTag.Migration())
     app.migrations.add(Comment.Migration())
     app.migrations.add(Subscription.Migration())
+    
+    app.migrations.add(Reaction.MigrationSeed())
+    
+    app.logger.logLevel = .trace
 
     // register routes
     try routes(app)

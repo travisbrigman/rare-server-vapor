@@ -9,6 +9,12 @@ import Fluent
 import Vapor
 
 final class RareUser: Model, Content {
+    
+    struct Public: Content {
+      let username: String
+      let id: UUID
+    }
+    
     static let schema = "rare_users"
     
     @ID(key: .id)

@@ -37,10 +37,10 @@ final class Post: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, author: RareUser, category: Category, title: String, publicationDate: Date, imageUrl: String, content: String, approved: Bool) {
+    init(id: UUID? = nil, authorID: UUID, categoryID: UUID, title: String, publicationDate: Date, imageUrl: String, content: String, approved: Bool) {
         self.id = id
-        self.author = author
-        self.category = category
+        $author.id = authorID
+        $category.id = categoryID
         self.title = title
         self.publicationDate = publicationDate
         self.imageUrl = imageUrl
