@@ -22,9 +22,9 @@ final class PostTag: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, tag: Tag, post: Post) {
+    init(id: UUID? = nil, tag: UUID, post: UUID) {
         self.id = id
-        self.tag = tag
-        self.post = post
+        self.$tag.id = tag
+        self.$post.id = post
     }
 }

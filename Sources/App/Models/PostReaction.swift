@@ -20,15 +20,15 @@ final class PostReaction: Model, Content {
     @Parent(key: "reaction_id")
     var reaction: Reaction
 
-    @Field(key: "post_id")
+    @Parent(key: "post_id")
     var post: Post
 
     init() { }
 
-    init(id: UUID? = nil, user: RareUser, reaction: Reaction, post: Post) {
+    init(id: UUID? = nil, user: UUID, reaction: UUID, post: UUID) {
         self.id = id
-        self.user = user
-        self.reaction = reaction
-        self.post = post
+        self.$user.id = user
+        self.$reaction.id = reaction
+        self.$post.id = post
     }
 }

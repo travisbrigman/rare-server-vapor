@@ -11,10 +11,17 @@ import Fluent
 
 final class PostReactionController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let postReactions = routes.grouped(UserToken.authenticator())
+        let postReactions = routes.grouped("postReactions")
         
-        postReactions.get("postReactions", use: retrieveAll)
-        postReactions.post("postReactions", use: create)
+        postReactions.get(use: retrieveAll)
+        postReactions.post(use: create)
+        postReactions.delete(":post_reaction_id", use: delete)
+    }
+    
+    struct CreatePostReaction: Content {
+        let post: UUID
+        let user: UUID
+        let reaction: UUID
     }
     
     func retrieveAll(_ req: Request) throws -> EventLoopFuture<[PostReaction]> {
@@ -22,10 +29,17 @@ final class PostReactionController: RouteCollection {
     }
     
     func create(_ req: Request) throws -> EventLoopFuture<PostReaction> {
-        let user = try req.auth.require(RareUser.self)
-        let postReaction = try req.content.decode(PostReaction.self)
-        
+        let data = try req.content.decode(CreatePostReaction.self)
+        let postReaction = PostReaction(user: data.user, reaction: data.reaction, post: data.post)
         return postReaction.create(on: req.db).map { postReaction }
+    }
+    
+    func delete(_ req: Request) -> EventLoopFuture<HTTPStatus> {
+        PostReaction.find(req.parameters.get("post_reaction_id"), on: req.db)
+            .unwrap(or: Abort(.notFound)).flatMap { postReaction in
+                postReaction.delete(on: req.db)
+                    .transform(to: .noContent)
+            }
     }
     
 }

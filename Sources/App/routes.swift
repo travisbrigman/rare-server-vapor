@@ -8,6 +8,8 @@ func routes(_ app: Application) throws {
     let commentController = CommentController()
     let postController = PostController()
     let postReactionsController = PostReactionController()
+    let postTagController = PostTagController()
+    let tagController = TagController()
 
     app.post("users") { req -> EventLoopFuture<RareUser> in
         try RareUser.Create.validate(content: req)
@@ -44,4 +46,6 @@ func routes(_ app: Application) throws {
     try app.register(collection: commentController)
     try app.register(collection: postController)
     try app.register(collection: postReactionsController)
+    try app.register(collection: postTagController)
+    try app.register(collection: tagController)
 }
