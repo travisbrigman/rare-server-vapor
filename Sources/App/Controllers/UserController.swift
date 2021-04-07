@@ -13,6 +13,10 @@ final class RareUserController: RouteCollection {
         let users = routes.grouped("users")
         users.get(use: all)
         users.get(":rare_user_id", use: getHandler)
+        users.get("currentuser", use: getMyOwnUser)
+        
+        let tokenProtected = routes.grouped(UserToken.authenticator())
+        tokenProtected.get("currentuser", use: getMyOwnUser)
     }
     
     

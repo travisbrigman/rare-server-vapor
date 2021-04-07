@@ -23,7 +23,7 @@ final class PostController: RouteCollection {
     }
     
     func retrieveAll(_ req: Request) throws -> EventLoopFuture<[Post]> {
-        Post.query(on: req.db).all()
+        Post.query(on: req.db).with(\.$author).with(\.$category).all()
     }
     
     func retrieveSingle(_ req: Request) throws -> EventLoopFuture<Post> {
