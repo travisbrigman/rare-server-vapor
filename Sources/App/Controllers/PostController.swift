@@ -23,7 +23,23 @@ final class PostController: RouteCollection {
     }
     
     func retrieveAll(_ req: Request) throws -> EventLoopFuture<[Post]> {
-        Post.query(on: req.db).with(\.$author).with(\.$category).all()
+        if let byUser = req.query["user_id"] as UUID? {
+            return Post.query(on: req.db)
+                .filter(\.$author.$id == byUser)
+                .with(\.$author)
+                .with(\.$category)
+                .all()
+        }
+        
+        if let byCategory = req.query["category_id"] as UUID? {
+            return Post.query(on: req.db)
+                .filter(\.$category.$id == byCategory)
+                .with(\.$author)
+                .with(\.$category)
+                .all()
+        }
+        
+        return Post.query(on: req.db).with(\.$author).with(\.$category).all()
     }
     
     func retrieveSingle(_ req: Request) throws -> EventLoopFuture<Post> {
