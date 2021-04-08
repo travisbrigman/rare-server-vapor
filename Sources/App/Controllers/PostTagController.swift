@@ -24,8 +24,17 @@ final class PostTagController: RouteCollection {
     }
     
     func retrieveAll(_ req: Request) throws -> EventLoopFuture<[PostTag]> {
-        PostTag.query(on: req.db).all()
+        if let byTagId = req.query["tag_id"] as UUID? {
+            return PostTag.query(on: req.db)
+                .filter(\.$tag.$id == byTagId)
+                .with(\.$post)
+                .with(\.$tag)
+                .all()
+        }
+        
+        return PostTag.query(on: req.db).with(\.$post).with(\.$tag).all()
     }
+
     
     func create(_ req: Request) throws -> EventLoopFuture<PostTag> {
         let data = try req.content.decode(CreatePostTag.self)
