@@ -32,6 +32,14 @@ final class PostTagController: RouteCollection {
                 .all()
         }
         
+        if let byPostId = req.query["post_id"] as UUID? {
+            return PostTag.query(on: req.db)
+                .filter(\.$post.$id == byPostId)
+                .with(\.$post)
+                .with(\.$tag)
+                .all()
+        }
+        
         return PostTag.query(on: req.db).with(\.$post).with(\.$tag).all()
     }
 
