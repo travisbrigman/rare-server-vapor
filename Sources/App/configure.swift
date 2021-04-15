@@ -50,6 +50,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(Reaction.MigrationSeed())
     app.migrations.add(PostReaction.AddOnDeleteFKConstraint())
     app.migrations.add(PostTag.AddOnDeleteFKConstraint())
+    app.migrations.add(Subscription.UpdateSubscription())
     
     app.logger.logLevel = .trace
 

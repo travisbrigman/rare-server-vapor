@@ -43,9 +43,6 @@ final class PostController: RouteCollection {
     }
     
     func retrieveSingle(_ req: Request) throws -> EventLoopFuture<Post> {
-//        guard let postID = try req.parameters.require("post_id", as: UUID.self) else {
-//          throw Abort(.badRequest)
-//        }
         let postID = try req.parameters.require("post_id", as: UUID.self) 
         return Post.query(on: req.db).filter(\.$id == postID).with(\.$author).with(\.$category).first().unwrap(or: Abort(.notFound))
     }

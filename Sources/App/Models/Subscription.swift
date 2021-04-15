@@ -14,10 +14,10 @@ final class Subscription: Model, Content {
     @ID(key: .id)
     var id: UUID?
     
-    @Parent(key: "rare_user")
+    @Parent(key: "follower")
     var follower: RareUser
     
-    @Parent(key: "rare_user")
+    @Parent(key: "author")
     var author: RareUser
     
     @Timestamp(key: "created_on", on: .create)
@@ -28,10 +28,10 @@ final class Subscription: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, follower: RareUser, author: RareUser, createdOn: Date, endedOn: Date) {
+    init(id: UUID? = nil, follower: UUID, author: UUID, createdOn: Date?, endedOn: Date?) {
         self.id = id
-        self.follower = follower
-        self.author = author
+        $follower.id = follower
+        $author.id = author
         self.createdOn = createdOn
         self.endedOn = endedOn
     }

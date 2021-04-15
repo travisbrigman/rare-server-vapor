@@ -11,6 +11,7 @@ func routes(_ app: Application) throws {
     let postTagController = PostTagController()
     let tagController = TagController()
     let authenticationController = AuthenticationController()
+    let subscriptionController = SubscriptionController()
 
     try app.register(collection: userController)
     try app.register(collection: categoryController)
@@ -20,4 +21,5 @@ func routes(_ app: Application) throws {
     try app.register(collection: postTagController)
     try app.register(collection: tagController)
     try app.register(collection: authenticationController)
+    try app.register(collection: subscriptionController)
 }
