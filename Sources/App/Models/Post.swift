@@ -34,7 +34,9 @@ final class Post: Model, Content {
     
     @Field(key: "approved")
     var approved: Bool
-
+    
+    var createdByCurrentUser: Bool = false
+   
     init() { }
 
     init(id: UUID? = nil, authorID: UUID, categoryID: UUID, title: String, publicationDate: Date, imageUrl: String, content: String, approved: Bool) {

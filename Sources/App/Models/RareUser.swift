@@ -27,9 +27,15 @@ final class RareUser: Model, Content {
     @Field(key: "profile_image_url")
     var profileImageUrl: String
     
-
+    @Field(key: "is_staff")
+    var isStaff: Bool?
+    
+    @Field(key: "is_active")
+    var isActive: Bool?
+    
+    
     init() { }
-
+    
     init(id: UUID? = nil,
          username: String,
          passwordHash: String,
@@ -42,10 +48,12 @@ final class RareUser: Model, Content {
         self.profileImageUrl = profileImageUrl
         
     }
-
+    
     struct Public: Content {
-      let username: String
-      let id: UUID
+        let username: String
+        let id: UUID
+        let isActive: Bool
+        let isStaff: Bool
     }
     
 }
@@ -60,8 +68,12 @@ extension RareUser {
     }
     
     func asPublic() throws -> Public {
-      Public(username: username,
-             id: try requireID())
+        Public(username: username,
+               id: try requireID(),
+               isActive: isActive ?? false,
+               isStaff: isStaff ?? false
+               
+        )
     }
 }
 
@@ -90,5 +102,4 @@ extension RareUser {
         )
     }
 }
-
 

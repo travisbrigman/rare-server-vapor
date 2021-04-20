@@ -12,17 +12,22 @@ import Fluent
 final class PostController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let posts = routes.grouped("posts")
-        posts.get(use: retrieveAll)
+//        posts.get(use: retrieveAll)
         posts.get(":post_id", use: retrieveSingle)
         posts.delete(":post_id", use: delete)
         
         let tokenProtected = routes.grouped(UserToken.authenticator())
         tokenProtected.post("posts", use: create)
         tokenProtected.put("posts", ":post_id" , use: update)
+        tokenProtected.get("posts", use: retrieveAll)
         
     }
     
-    func retrieveAll(_ req: Request) throws -> EventLoopFuture<[Post]> {
+    
+    
+    func retrieveAll(_ req: Request) throws -> EventLoopFuture<[PostWithCreatedByCurrentUser]> {
+        let user = try req.auth.require(RareUser.self)
+   /*
         if let byUser = req.query["user_id"] as UUID? {
             return Post.query(on: req.db)
                 .filter(\.$author.$id == byUser)
@@ -38,8 +43,40 @@ final class PostController: RouteCollection {
                 .with(\.$category)
                 .all()
         }
+        */
         
-        return Post.query(on: req.db).with(\.$author).with(\.$category).all()
+        
+//        return Post.query(on: req.db).with(\.$author).with(\.$category).all().mapEach { post in
+//            if  post.author.id == user.id {
+//                post.createdByCurrentUser = true
+//            } else {
+//                post.createdByCurrentUser = false
+//            }
+//            return post
+//        }
+        
+        return Post.query(on: req.db).with(\.$author).with(\.$category).all().flatMapThrowing { posts in
+            
+            try posts.map { post in
+                
+                if  post.author.id == user.id {
+                    post.createdByCurrentUser = true
+                } else {
+                    post.createdByCurrentUser = false
+                }
+                return try PostWithCreatedByCurrentUser(
+                    id: post.id!,
+                    author: post.author,
+                    category: post.category,
+                    title: post.title,
+                    publicationDate: post.publicationDate!,
+                    imageUrl: post.imageUrl,
+                    content: post.content,
+                    approved: post.approved,
+                    createdByCurrentUser: post.createdByCurrentUser
+                )
+            }
+        }
     }
     
     func retrieveSingle(_ req: Request) throws -> EventLoopFuture<Post> {
@@ -98,6 +135,18 @@ struct CreatePost: Content {
     var imageUrl: String
     var content: String
     var approved: Bool
+}
+
+struct PostWithCreatedByCurrentUser: Content {
+    var id: UUID
+    var author: RareUser
+    var category: Category
+    var title: String
+    var publicationDate: Date
+    var imageUrl: String
+    var content: String
+    var approved: Bool
+    var createdByCurrentUser: Bool
 }
 
 
