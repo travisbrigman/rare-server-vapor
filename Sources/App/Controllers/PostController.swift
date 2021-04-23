@@ -12,14 +12,15 @@ import Fluent
 final class PostController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let posts = routes.grouped("posts")
-//        posts.get(use: retrieveAll)
-        posts.get(":post_id", use: retrieveSingle)
+        //        posts.get(use: retrieveAll)
+//        posts.get(":post_id", use: retrieveSingle)
         posts.delete(":post_id", use: delete)
         
         let tokenProtected = routes.grouped(UserToken.authenticator())
         tokenProtected.post("posts", use: create)
         tokenProtected.put("posts", ":post_id" , use: update)
         tokenProtected.get("posts", use: retrieveAll)
+        tokenProtected.get("posts", ":post_id", use: retrieveSingle)
         
     }
     
@@ -27,14 +28,36 @@ final class PostController: RouteCollection {
     
     func retrieveAll(_ req: Request) throws -> EventLoopFuture<[PostWithCreatedByCurrentUser]> {
         let user = try req.auth.require(RareUser.self)
-   /*
+        
         if let byUser = req.query["user_id"] as UUID? {
             return Post.query(on: req.db)
                 .filter(\.$author.$id == byUser)
                 .with(\.$author)
                 .with(\.$category)
                 .all()
+                .flatMapThrowing { posts in
+                    posts.map { post in
+                        
+                        if  post.author.id == user.id {
+                            post.createdByCurrentUser = true
+                        } else {
+                            post.createdByCurrentUser = false
+                        }
+                        return PostWithCreatedByCurrentUser(
+                            id: post.id!,
+                            author: post.author,
+                            category: post.category,
+                            title: post.title,
+                            publicationDate: post.publicationDate!,
+                            imageUrl: post.imageUrl,
+                            content: post.content,
+                            approved: post.approved,
+                            createdByCurrentUser: post.createdByCurrentUser
+                        )
+                    }
+                }
         }
+        
         
         if let byCategory = req.query["category_id"] as UUID? {
             return Post.query(on: req.db)
@@ -42,18 +65,29 @@ final class PostController: RouteCollection {
                 .with(\.$author)
                 .with(\.$category)
                 .all()
+                .flatMapThrowing { posts in
+                    posts.map { post in
+                        
+                        if  post.author.id == user.id {
+                            post.createdByCurrentUser = true
+                        } else {
+                            post.createdByCurrentUser = false
+                        }
+                        return PostWithCreatedByCurrentUser(
+                            id: post.id!,
+                            author: post.author,
+                            category: post.category,
+                            title: post.title,
+                            publicationDate: post.publicationDate!,
+                            imageUrl: post.imageUrl,
+                            content: post.content,
+                            approved: post.approved,
+                            createdByCurrentUser: post.createdByCurrentUser
+                        )
+                    }
+                }
         }
-        */
         
-        
-//        return Post.query(on: req.db).with(\.$author).with(\.$category).all().mapEach { post in
-//            if  post.author.id == user.id {
-//                post.createdByCurrentUser = true
-//            } else {
-//                post.createdByCurrentUser = false
-//            }
-//            return post
-//        }
         
         return Post.query(on: req.db).with(\.$author).with(\.$category).all().flatMapThrowing { posts in
             
@@ -64,7 +98,7 @@ final class PostController: RouteCollection {
                 } else {
                     post.createdByCurrentUser = false
                 }
-                return try PostWithCreatedByCurrentUser(
+                return PostWithCreatedByCurrentUser(
                     id: post.id!,
                     author: post.author,
                     category: post.category,
@@ -79,9 +113,36 @@ final class PostController: RouteCollection {
         }
     }
     
-    func retrieveSingle(_ req: Request) throws -> EventLoopFuture<Post> {
-        let postID = try req.parameters.require("post_id", as: UUID.self) 
-        return Post.query(on: req.db).filter(\.$id == postID).with(\.$author).with(\.$category).first().unwrap(or: Abort(.notFound))
+    func retrieveSingle(_ req: Request) throws -> EventLoopFuture<PostWithCreatedByCurrentUser> {
+        let user = try req.auth.require(RareUser.self)
+        let postID = try req.parameters.require("post_id", as: UUID.self)
+        
+        return Post.query(on: req.db).filter(\.$id == postID)
+            .with(\.$author)
+            .with(\.$category)
+            .first()
+            .flatMapThrowing { posts in
+                posts.map { post in
+                    
+                    if  post.author.id == user.id {
+                        post.createdByCurrentUser = true
+                    } else {
+                        post.createdByCurrentUser = false
+                    }
+                    return PostWithCreatedByCurrentUser(
+                        id: post.id!,
+                        author: post.author,
+                        category: post.category,
+                        title: post.title,
+                        publicationDate: post.publicationDate!,
+                        imageUrl: post.imageUrl,
+                        content: post.content,
+                        approved: post.approved,
+                        createdByCurrentUser: post.createdByCurrentUser
+                    )
+                }
+            }
+            .unwrap(or: Abort(.notFound))
     }
     
     func create(_ req: Request) throws -> EventLoopFuture<Post> {
