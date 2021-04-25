@@ -163,7 +163,7 @@ final class PostController: RouteCollection {
                 return post.create(on: req.db).map { post }
             }
     }
-    
+    /*
     func update(_ req: Request) throws -> EventLoopFuture<Post> {
         let updateData = try req.content.decode(CreatePost.self)
         let user = try req.auth.require(RareUser.self)
@@ -177,7 +177,24 @@ final class PostController: RouteCollection {
                 return post.save(on: req.db).map { post }
             }
     }
-    
+ */
+    func update(_ req: Request) throws -> EventLoopFuture<Post> {
+        let updateData = try req.content.decode(CreatePost.self)
+        let user = try req.auth.require(RareUser.self)
+        return Post.find(req.parameters.get("post_id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { post in
+                post.$author.id = user.id!
+                post.$category.id = UUID(updateData.category_id)!
+                post.imageUrl = updateData.imageUrl
+                post.title = updateData.title
+                post.content = updateData.content
+                post.publicationDate = Date()
+                post.approved = updateData.approved
+                
+                return post.save(on: req.db).map { post }
+            }
+    }
     
     func delete(_ req: Request) -> EventLoopFuture<HTTPStatus> {
         Post.find(req.parameters.get("post_id"), on: req.db)
