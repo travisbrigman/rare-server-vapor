@@ -12,8 +12,6 @@ import Fluent
 final class PostController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let posts = routes.grouped("posts")
-        //        posts.get(use: retrieveAll)
-//        posts.get(":post_id", use: retrieveSingle)
         posts.delete(":post_id", use: delete)
         
         let tokenProtected = routes.grouped(UserToken.authenticator())
@@ -91,7 +89,7 @@ final class PostController: RouteCollection {
         
         return Post.query(on: req.db).with(\.$author).with(\.$category).all().flatMapThrowing { posts in
             
-            try posts.map { post in
+            posts.map { post in
                 
                 if  post.author.id == user.id {
                     post.createdByCurrentUser = true
@@ -163,21 +161,7 @@ final class PostController: RouteCollection {
                 return post.create(on: req.db).map { post }
             }
     }
-    /*
-    func update(_ req: Request) throws -> EventLoopFuture<Post> {
-        let updateData = try req.content.decode(CreatePost.self)
-        let user = try req.auth.require(RareUser.self)
-        return Category.query(on: req.db)
-            .filter(\.$id == UUID(updateData.category_id) ?? UUID())
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .flatMap { category in
-                let post = Post(authorID: user.id!, categoryID: category.id! , title: updateData.title, publicationDate: Date(), imageUrl: updateData.imageUrl, content: updateData.content, approved: updateData.approved)
-                
-                return post.save(on: req.db).map { post }
-            }
-    }
- */
+
     func update(_ req: Request) throws -> EventLoopFuture<Post> {
         let updateData = try req.content.decode(CreatePost.self)
         let user = try req.auth.require(RareUser.self)
