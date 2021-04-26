@@ -10,6 +10,7 @@ import Vapor
 import Fluent
 
 final class CommentController: RouteCollection {
+    // This code is unused in the the app
     func boot(routes: RoutesBuilder) throws {
         let categories = routes.grouped("comments")
         categories.get(use: retrieveAll)

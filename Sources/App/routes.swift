@@ -2,7 +2,7 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    
+    //registers the route groups created in the Controller files
     let userController = RareUserController()
     let categoryController = CategoryController()
     let commentController = CommentController()

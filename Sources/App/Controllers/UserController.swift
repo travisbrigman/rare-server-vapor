@@ -28,7 +28,7 @@ final class RareUserController: RouteCollection {
     }
     
     func getMyOwnUser(req: Request) throws -> RareUser.Public {
-      try req.auth.require(RareUser.self).asPublic()
+      try req.auth.require(RareUser.self).asPublic() // this returns an object that only has "public" info like name, email, etc. It doesn't send back any password hash or token stuff - this was taken from either the docs or an article somewhere.
     }
     
 }

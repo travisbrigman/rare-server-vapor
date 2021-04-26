@@ -35,7 +35,7 @@ public func configure(_ app: Application) throws {
 //    ), as: .psql)
     
     app.databases.use(.postgres(hostname: "localhost", username: "postgres", password: "", database: "raredb"), as: .psql)
-
+//first migrations to create database
     app.migrations.add(RareUser.Migration())
     app.migrations.add(UserToken.Migration())
     app.migrations.add(Category.Migration())
@@ -46,14 +46,14 @@ public func configure(_ app: Application) throws {
     app.migrations.add(PostTag.Migration())
     app.migrations.add(Comment.Migration())
     app.migrations.add(Subscription.Migration())
-    
+//additional migrations to add/fix stuff
     app.migrations.add(Reaction.MigrationSeed())
     app.migrations.add(PostReaction.AddOnDeleteFKConstraint())
     app.migrations.add(PostTag.AddOnDeleteFKConstraint())
     app.migrations.add(Subscription.UpdateSubscription())
     app.migrations.add(RareUser.UpdateRareUser())
     
-    app.logger.logLevel = .trace
+//    app.logger.logLevel = .trace
 
     // register routes
     try routes(app)

@@ -11,6 +11,10 @@ import Fluent
 
 final class AuthenticationController: RouteCollection {
     
+    /*
+     Most of this was taken directly from the documentation. It barely works but is good enought to get users created and logged in.
+     */
+    
     func boot(routes: RoutesBuilder) throws {
         let tokenProtected = routes.grouped(UserToken.authenticator())
         tokenProtected.post("users", use: registerUser)
@@ -47,17 +51,6 @@ final class AuthenticationController: RouteCollection {
         return token.save(on: req.db)
             .map { token }
     }
- 
-    /*
-    func logUserIn(_ req: Request) throws -> EventLoopFuture<userAuth> {
-        let user = try req.auth.require(RareUser.self)
-        let token = try user.generateToken()
-        let userCred = userAuth(isValid: true, token: token)
-
-        return userCred.token.save(on: req.db)
-            .map { userCred }
-    }
- */
     
     func getCurrentUser(_ req: Request) throws -> RareUser {
         try req.auth.require(RareUser.self)
