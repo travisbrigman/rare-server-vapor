@@ -34,7 +34,29 @@ public func configure(_ app: Application) throws {
 //        database: Environment.get("DATABASE_NAME") ?? "vapor_database"
 //    ), as: .psql)
     
-    app.databases.use(.postgres(hostname: "localhost", username: "postgres", password: "", database: "raredb"), as: .psql)
+//    app.databases.use(.postgres(hostname: "localhost", username: "postgres", password: "", database: "raredb"), as: .psql)
+    if var config = Environment.get("DATABASE_URL")
+        .flatMap(URL.init)
+        .flatMap(PostgresConfiguration.init) {
+      config.tlsConfiguration = .forClient(
+        certificateVerification: .none)
+      app.databases.use(.postgres(
+        configuration: config
+      ), as: .psql)
+    } else {
+      app.databases.use(
+        .postgres(
+          hostname: Environment.get("DATABASE_HOST") ??
+            "localhost",
+          port: 5433,
+          username: Environment.get("DATABASE_USERNAME") ??
+            "vapor_username",
+          password: Environment.get("DATABASE_PASSWORD") ??
+            "vapor_password",
+          database: Environment.get("DATABASE_NAME") ??
+            "raredb"),
+        as: .psql)
+    }
 //first migrations to create database
     app.migrations.add(RareUser.Migration())
     app.migrations.add(UserToken.Migration())
