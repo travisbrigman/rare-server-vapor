@@ -46,14 +46,16 @@ final class RareUser: Model, Content {
         self.passwordHash = passwordHash
         self.bio = bio
         self.profileImageUrl = profileImageUrl
+        self.isActive = true
+        self.isStaff = false
         
     }
     
     struct Public: Content {
         let username: String
         let id: UUID
-        let isActive: Bool
-        let isStaff: Bool
+        let isActive: Bool?
+        let isStaff: Bool?
     }
     
 }
