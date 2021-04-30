@@ -24,17 +24,23 @@ public func configure(_ app: Application) throws {
     app.middleware.use(cors)
     app.middleware.use(routeLogging)
     app.middleware.use(error)
-
-//‼️THIS WAS BOILERPLATE CODE THAT DIDN'T WORK
-//    app.databases.use(.postgres(
-//        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-//        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
-//        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
-//        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
-//        database: Environment.get("DATABASE_NAME") ?? "vapor_database"
-//    ), as: .psql)
     
 //    app.databases.use(.postgres(hostname: "localhost", username: "postgres", password: "", database: "raredb"), as: .psql)
+    
+    let databaseName: String
+    let databasePort: Int
+    if (app.environment == .testing) {
+      databaseName = "raredb"
+      if let testPort = Environment.get("DATABASE_PORT") {
+        databasePort = Int(testPort) ?? 5432
+      } else {
+        databasePort = 5432
+      }
+    } else {
+      databaseName = "raredb"
+      databasePort = 5432
+    }
+    
     if var config = Environment.get("DATABASE_URL")
         .flatMap(URL.init)
         .flatMap(PostgresConfiguration.init) {
@@ -48,13 +54,13 @@ public func configure(_ app: Application) throws {
         .postgres(
           hostname: Environment.get("DATABASE_HOST") ??
             "localhost",
-          port: 5433,
+          port: databasePort,
           username: Environment.get("DATABASE_USERNAME") ??
-            "vapor_username",
+            "postgres",
           password: Environment.get("DATABASE_PASSWORD") ??
-            "vapor_password",
+            "",
           database: Environment.get("DATABASE_NAME") ??
-            "raredb"),
+            databaseName),
         as: .psql)
     }
 //first migrations to create database
@@ -75,7 +81,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(Subscription.UpdateSubscription())
     app.migrations.add(RareUser.UpdateRareUser())
     
-//    app.logger.logLevel = .trace
+    app.logger.logLevel = .trace
 
     // register routes
     try routes(app)
