@@ -24,20 +24,27 @@ final class AuthenticationController: RouteCollection {
         passwordProtected.post("login", use: logUserIn)
     }
     
-    func registerUser(_ req: Request) throws -> EventLoopFuture<RareUser> {
+    func registerUser(_ req: Request) throws -> EventLoopFuture<UserToken> {
         try RareUser.Create.validate(content: req)
         let create = try req.content.decode(RareUser.Create.self)
         guard create.password == create.confirmPassword else {
             throw Abort(.badRequest, reason: "Passwords did not match")
         }
+        
         let user = try RareUser(
                                 username: create.username,
                                 passwordHash: Bcrypt.hash(create.password),
                                 bio: create.bio,
                                 profileImageUrl: create.profileImageUrl
                                 )
-                        return user.save(on: req.db)
-                        .map { user }
+        return user.create(on: req.db).flatMap {
+                    do {
+                      let token = try user.generateToken()
+                      return token.save(on: req.db).map { token }
+                    } catch {
+                      return req.eventLoop.future(error: error)
+                    }
+                }
     }
     
     struct userAuth {
